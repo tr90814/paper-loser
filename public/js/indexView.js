@@ -43,9 +43,9 @@ $('form').submit(function(){
 socket.on('result', function(result){
   $('button').attr('disabled', result.disableBtn);
   if (UUID == result.UUID){
-    $('#messages').append($('<li>').text('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands)));
+    $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
     points = points + result.increment;
-    $('#messages').append($('<li>').text('Your tally: ' + points));
+    $('.points').html('Your tally: ' + points);
   }
   $('button').attr('disabled', result.disableBtn);
   return false;
@@ -53,9 +53,9 @@ socket.on('result', function(result){
 
 socket.on('users', function(counter){
   if (counter == 1) {
-    $('#messages').append($('<li>').text("Things are looking a bit lonely here, if you want to play you'll be playing against our bot."));
+    $('.hand').html("Things are looking a bit lonely here, if you want to play you'll be playing against our bot.");
   }
   else {
-    $('#messages').append($('<li>').text("You're playing with " + counter + " players."));
+    $('.points').html("You're playing with " + counter + " players.");
   }
 })
