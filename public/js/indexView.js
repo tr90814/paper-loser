@@ -2,6 +2,22 @@ var array   = ['PAPER', 'SCISSORS', 'ROCK'];
 var socket  = io();
 var UUID    = generateUUID();
 var points  = 0;
+var counter = 0;
+var pause   = false;
+
+window.addEventListener("devicemotion", function(event) {
+  if ((event.acceleration.y > 4) || (event.acceleration.x > 4) && !pause) {
+    counter = counter + 1;
+    pause = true;
+    setTimeout(function(){
+      pause = false;
+    }, 1000)
+  }
+  if (counter > 2) {
+    getInput();
+    counter = 0;
+  }
+}, true);
 
 function generateUUID() {
   var d = new Date().getTime();
@@ -23,7 +39,7 @@ function displayOtherHands(handsArray) {
   return hands;
 }
 
-$('form').submit(function(){
+function getInput(){
   var inputVal   = $('#m').val();
   var outgoing   = inputVal.toUpperCase();
   var validInput = (array.indexOf(outgoing)) != -1;
@@ -38,7 +54,9 @@ $('form').submit(function(){
   $('#m').val('');
   $('button').attr('disabled', true);
   return false;
-});
+}
+
+$('form').submit(getInput());
 
 socket.on('result', function(result){
   $('button').attr('disabled', result.disableBtn);
@@ -56,6 +74,6 @@ socket.on('users', function(counter){
     $('.hand').html("Things are looking a bit lonely here, if you want to play you'll be playing against our bot.");
   }
   else {
-    $('.points').html("You're playing with " + counter + " players.");
+    $('.hand').html("You're playing with " + counter + " players.");
   }
 })

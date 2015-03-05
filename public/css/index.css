@@ -49,6 +49,7 @@ form button {
 }
 #messages li {
   padding: 5px 10px;
+  font-size: 32px;
 }
 @media only screen and (max-width: 800px) {
   form {
