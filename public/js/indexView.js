@@ -1,7 +1,7 @@
-var array = ['PAPER', 'SCISSORS', 'ROCK'];
-var socket = io();
-var UUID = generateUUID();
-var points = 0;
+var array   = ['PAPER', 'SCISSORS', 'ROCK'];
+var socket  = io();
+var UUID    = generateUUID();
+var points  = 0;
 
 function generateUUID() {
   var d = new Date().getTime();
