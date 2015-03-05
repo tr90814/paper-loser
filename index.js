@@ -76,6 +76,7 @@ io.on('connection', function(socket){
     counter = counter -1;
     showArray = [];
     io.emit('users', counter);
+    io.emit('result', { disableBtn: true });
   });
 });
 
