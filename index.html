@@ -74,6 +74,15 @@
         return false;
       });
 
+      socket.on('users', function(counter){
+        if (counter == 1) {
+          $('#messages').append($('<li>').text("Things are looking a bit lonely here, if you want to play you'll be playing against our bot."));
+        }
+        else {
+          $('#messages').append($('<li>').text("You're playing with " + counter + " players."));
+        }
+      })
+
     </script>
   </body>
 </html>

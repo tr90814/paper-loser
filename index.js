@@ -55,10 +55,12 @@ var notSubmitted = function(msgArray) {
 
 io.on('connection', function(socket){
   counter = counter + 1;
+  io.emit('users', counter);
   socket.on('show', function(msgArray){
+    if (counter == 1) { showArray = [[Math.floor(3*Math.random()), "Fake UUID"]]; }
     if (notSubmitted(msgArray)) {
       showArray.push(msgArray);
-      if (showArray.length == counter) { checkWhoWon(); } // Counter weirdness.
+      if ((showArray.length == counter) || (counter == 1)) { checkWhoWon(); }
     }
     else { io.emit('result', { disableBtn: true }); }
   });
