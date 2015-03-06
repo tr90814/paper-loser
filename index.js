@@ -73,10 +73,10 @@ io.on('connection', function(socket){
     else { io.emit('result', { disableBtn: true }); }
   });
   socket.on('disconnect', function(socket){
-    counter = counter -1;
+    counter = counter - 1;
     showArray = [];
     io.emit('users', counter);
-    io.emit('result', { disableBtn: true });
+    io.emit('result', { disableBtn: false });
   });
 });
 
