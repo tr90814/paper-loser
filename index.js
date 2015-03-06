@@ -57,20 +57,19 @@ notSubmitted = function(msgArray, showArray) {
   return bool;
 }
 
-
-
 app.use(express.static(__dirname + '/public'));
 
 io.on('connection', function(socket){
   counter = counter + 1;
   io.emit('users', counter);
+  io.emit('result', { disableBtn: false });
   socket.on('show', function(msgArray){
     if (counter == 1) { showArray = [[Math.floor(3*Math.random()), "Fake UUID"]]; }
     if (notSubmitted(msgArray, showArray)) {
       showArray.push(msgArray);
       if ((showArray.length == counter) || (counter == 1)) { checkWhoWon(showArray); }
     }
-    else { io.emit('result', { disableBtn: true }); }
+    // else { io.emit('result', { disableBtn: true }); }
   });
   socket.on('disconnect', function(socket){
     counter = counter - 1;
