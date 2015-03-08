@@ -3,9 +3,21 @@ var socket  = io();
 var UUID    = generateUUID();
 var points  = 0;
 var buttons = $('button');
+var body    = $(document.body);
+var waitingText = $('.waiting-container > p')
 var counter = 0;
-var timer = 10;
-var pause = false;
+var timer   = 10;
+var pause   = false;
+var title = $('h1');
+
+init = function() {
+  socket.emit('hello', UUID);
+  body.addClass('waiting');
+  title.fadeIn();
+  setTimeout(function(){
+    document.body.className = 'app intro';
+  }, 2000)
+}
 
 window.addEventListener("devicemotion", function(event) {
   if ((event.acceleration.y > 4) || (event.acceleration.x > 4) && !pause) {
@@ -26,8 +38,8 @@ function sendShow(outgoing) {
   var messageArray = [outgoing, UUID];
 
   socket.emit('show', messageArray);
-
-  $('button').attr('disabled', true);
+  document.body.className = 'waiting';
+  // document.querySelector('animate').beginElement();
 }
 
 function generateUUID() {
@@ -52,7 +64,6 @@ function displayOtherHands(handsArray) {
 
 buttons.on('click', function(){
   var outgoing = $(this).data('hand');
-
   if (outgoing == '-1') {
     outgoing = Math.floor(3*Math.random());
   }
@@ -65,17 +76,32 @@ socket.on('result', function(result){
   if (UUID == result.UUID){
     $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
     points = points + result.increment;
-    $('.points').html('Your tally: ' + points);
+    $('.points').html('Points: ' + points);
   }
-  buttons.attr('disabled', result.disableBtn);
+  if (result.disableBtn) {
+    document.body.className = 'waiting';
+  } else { document.body.className = 'app'; }
   return false;
 });
 
 socket.on('users', function(counter){
   if (counter == 1) {
-    $('.hand').html("Things are looking a bit lonely here, if you want to play you'll be playing against our bot.");
+    $('.players').html("You're playing on your own (against our bot).");
   }
   else {
-    $('.hand').html("You're playing with " + counter + " players.");
+    $('.players').html("Players: " + counter);
   }
 })
+
+socket.on('disconnect', function(UUIDToDisconnect) {
+  if (UUID == UUIDToDisconnect) {
+    socket.disconnect();
+  }
+  $('.message-container p').html("Someone took too long to respond so they were kcicked.<br>Play the round again.");
+  document.body.className = 'message';
+  setTimeout(function() {
+    document.body.className = 'app';
+  }, 3000)
+})
+
+init();

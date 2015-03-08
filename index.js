@@ -5,6 +5,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var counter = 0;
 var showArray = [];
+var timeout;
+var UUIDs = [];
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -46,29 +48,49 @@ checkWhoWon = function(showArray) {
   }
 };
 
-notSubmitted = function(msgArray, showArray) {
+getIdArray = function(showArray) {
   var idArray = [];
   for (i = 0; i < showArray.length; i++) {
     idArray.push(showArray[i][1]);
   }
+  return idArray;
+}
+
+notSubmitted = function(msgArray, showArray) {
+  var idArray = getIdArray(showArray);
   index = idArray.indexOf(msgArray[1]);
   bool = (index == -1);
   return bool;
 }
 
+playerTimeout = function(showArray) {
+  clearTimeout('timeout');
+  setTimeout(function(){
+    var idArray = getIdArray(showArray);
+    for (i = 0; i < UUIDs.length; i++) {
+      if ((idArray.indexOf(UUIDs[i]) == -1) && (showArray.length != counter)) {
+        io.emit('disconnect', UUIDs[i]);
+        console.log('disconnect ' + UUIDs[i]);
+        UUIDs.splice(i, 1);
+        console.log('User count = ' + UUIDs.length);
+      }
+    }
+  }, 6000);
+}
+
 app.use(express.static(__dirname + '/public'));
 
 io.on('connection', function(socket){
-  counter = counter + 1;
+  counter = socket.conn.server.clientsCount;
   io.emit('users', counter);
-  io.emit('result', { disableBtn: false });
   socket.on('show', function(msgArray){
+    console.log(msgArray);
+    playerTimeout(showArray);
     if (counter == 1) { showArray = [[Math.floor(3*Math.random()), "Fake UUID"]]; }
     if (notSubmitted(msgArray, showArray)) {
       showArray.push(msgArray);
       if ((showArray.length == counter) || (counter == 1)) { checkWhoWon(showArray); showArray = []; }
     }
-    // else { io.emit('result', { disableBtn: true }); }
   });
   socket.on('disconnect', function(socket){
     counter = counter - 1;
@@ -76,6 +98,10 @@ io.on('connection', function(socket){
     io.emit('users', counter);
     io.emit('result', { disableBtn: false });
   });
+  socket.on('hello', function(UUID){
+    UUIDs.push(UUID);
+    console.log('User count = ' + counter);
+  })
 });
 
 http.listen((process.env.PORT || 5000), function(){

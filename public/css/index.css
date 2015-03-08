@@ -1,7 +1,20 @@
-* { margin: 0; padding: 0; box-sizing: content-box; }
-body { font: 18px Helvetica, Arial; background-color: rgb(239,60,0);}
-form {
-  padding: 3px;
+body {
+  font: 18px helvetica;
+  background-color: rgb(239,60,0);
+  font-family: 'Ubuntu', sans-serif;
+  margin: 0;
+  padding: 0;
+  -moz-box-sizing:    border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing:         border-box;
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+  color: #fefefe;
+}
+
+ul li { list-style-type: none; }
+
+.main-container {
   position: absolute;
   top: 25%;
   left: 50%;
@@ -9,20 +22,46 @@ form {
   width: 100%;
   height: 50%;
   max-width: 800px;
-    -moz-box-sizing:    border-box;
-    -webkit-box-sizing: border-box;
-  box-sizing:           border-box;
-  font: inherit;
-  -webkit-font-smoothing: antialiased;
-  text-align: center;
-  color: #fefefe;
 }
+
+.app .app-container,
+.waiting .waiting-container,
+.message .message-container {
+  opacity: 1;
+  pointer-events: all;
+  max-height: 100%;
+  -moz-transition: all .3s .5s ease-in;
+  -webkit-transition: all .3s .5s ease-in;
+  -o-transition: all .3s .5s ease-in;
+  transition: all .3s .5s ease-in;
+}
+
+.app-container,
+.waiting-container,
+.message-container {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -moz-transition: all .2s ease-in;
+  -webkit-transition: all .2s ease-in;
+  -o-transition: all .2s ease-in;
+  transition: all .2s ease-in;
+}
+
 h1 {
-  margin-bottom: 32px;
+  margin-bottom: 30px;
   color: #fefefe;
 }
+
+.button-container {
+  position: relative;
+  margin-top: 32px;
+  display: block;
+}
+
 button {
-  width: 22%;
+  width: 23%;
   background: rgb(130, 224, 255);
   border: none;
   padding: 10px;
@@ -30,44 +69,53 @@ button {
   vertical-align: bottom;
   color: #444;
   outline: none;
+  font-family: 'Ubuntu', sans-serif;
 }
-form button:disabled {
-  background: #aaa;
-  color: #aaa;
-  position: relative;
-}
-form button:disabled:after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  color: #444;
-  padding-top: 10px;
-  content: 'Waiting..';
-}
+
 #messages {
   list-style-type: none;
-  margin-bottom: 32px;
   color: white;
-  width: 80%;
-  margin-left: 10%;
+  width: 100%;
+  padding: 0 0 32px 0;
 }
-#messages li {
+
+#messages .hand {
   padding: 5px 10px;
   font-size: 32px;
+  min-height: 32px;
+  margin-bottom: 24px;
 }
+
+#messages .points,
+#messages .players {
+  width: 20%;
+  float: left;
+  display: inline;
+  padding: 5px 10px;
+}
+
+#messages .players {
+  width: 50%;
+  text-align: right;
+  float: right;
+  margin-right: 24px;
+}
+
+.waiting-container svg {
+  margin-top: 0px;
+}
+
+.intro .waiting-container p {
+  opacity: 0;
+}
+
 @media only screen and (max-width: 800px) {
-  form {
+  .main-container {
     left: 0;
     right: 0;;
     margin: 0;
   }
-  h1 {
-    font-size: 50px;
-  }
   #messages {
-    width: 90%;
-    margin-left: 5%;
+    width: 100%;
   }
 }
