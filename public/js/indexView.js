@@ -2,7 +2,7 @@ var array   = ['PAPER', 'SCISSORS', 'ROCK'];
 var socket  = io();
 var UUID    = generateUUID();
 var points  = 0;
-
+var buttons = $('button');
 var counter = 0;
 var timer = 10;
 var pause = false;
@@ -16,19 +16,17 @@ window.addEventListener("devicemotion", function(event) {
     }, 1000)
   }
   if (counter > 2) {
-    outgoing = array[Math.floor(3*Math.random())]
+    outgoing = Math.floor(3*Math.random())
     sendShow(outgoing);
     counter = 0;
   }
 }, true);
 
 function sendShow(outgoing) {
-  var index        = array.indexOf(outgoing);
-  var messageArray = [index, UUID];
+  var messageArray = [outgoing, UUID];
 
   socket.emit('show', messageArray);
 
-  $('#m').val('');
   $('button').attr('disabled', true);
 }
 
@@ -52,26 +50,24 @@ function displayOtherHands(handsArray) {
   return hands;
 }
 
-$('form').submit(function(){
-  var inputVal   = $('#m').val();
-  var outgoing   = inputVal.toUpperCase();
-  var validInput = (array.indexOf(outgoing)) != -1;
+buttons.on('click', function(){
+  var outgoing = $(this).data('hand');
 
-  if (!validInput || inputVal == "") { outgoing = array[Math.floor(3*Math.random())] }
+  if (outgoing == '-1') {
+    outgoing = Math.floor(3*Math.random());
+  }
 
   sendShow(outgoing);
-
   return false;
 });
 
 socket.on('result', function(result){
-  $('button').attr('disabled', result.disableBtn);
   if (UUID == result.UUID){
     $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
     points = points + result.increment;
     $('.points').html('Your tally: ' + points);
   }
-  $('button').attr('disabled', result.disableBtn);
+  buttons.attr('disabled', result.disableBtn);
   return false;
 });
 
