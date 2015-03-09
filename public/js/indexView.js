@@ -62,14 +62,26 @@ function displayOtherHands(handsArray) {
   return hands;
 }
 
+function timer(time) {
+  var time    = time;
+  var counter = setInterval(countDown, 1000);
+
+  function countDown() {
+    time = time - 1;
+    if (time <= 0) {
+      clearInterval(counter);
+      return;
+    }
+  }
+  return time;
+}
+
 buttons.on('click', function(){
   var outgoing = $(this).data('hand');
   if (outgoing == '-1') {
     outgoing = Math.floor(3*Math.random());
   }
-
   sendShow(outgoing);
-  return false;
 });
 
 socket.on('result', function(result){
@@ -77,31 +89,23 @@ socket.on('result', function(result){
     $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
     points = points + result.increment;
     $('.points').html('Points: ' + points);
+  } else {
+    $('.hand').html('Looks like you missed out on that round, submit your hand quicker next time!');
   }
-  if (result.disableBtn) {
-    document.body.className = 'waiting';
-  } else { document.body.className = 'app'; }
-  return false;
+  if (!waiting) { document.body.className = 'app'; }
 });
 
-socket.on('users', function(counter){
-  if (counter == 1) {
-    $('.players').html("You're playing on your own (against our bot).");
-  }
-  else {
-    $('.players').html("Players: " + counter);
-  }
+socket.on('users', function(obj){
+  if (obj.counter == 1) { $('.players').html("You're playing on your own (against our bot)."); }
+  else                  { $('.players').html("Players: " + counter); }
+  if (obj.waiting) { document.body.className = 'waiting'; }
+  else             { document.body.className = 'app'; }
 })
 
-socket.on('disconnect', function(UUIDToDisconnect) {
-  if (UUID == UUIDToDisconnect) {
-    socket.disconnect();
+socket.on('show submitted', function(ID, time) {
+  if (UUID != ID) {
+    $('.hand').html("Someone had shown their next hand, submit yours now, or you won't be included in this round. " + timer(time));
   }
-  $('.message-container p').html("Someone took too long to respond so they were kcicked.<br>Play the round again.");
-  document.body.className = 'message';
-  setTimeout(function() {
-    document.body.className = 'app';
-  }, 3000)
 })
 
 init();

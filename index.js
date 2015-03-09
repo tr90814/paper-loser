@@ -7,6 +7,8 @@ var counter = 0;
 var showArray = [];
 var timeout;
 var UUIDs = [];
+var roundTimer = undefined;
+var roundTime = 10;
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -43,7 +45,8 @@ checkWhoWon = function(showArray) {
       hand: element,
       increment: increment,
       UUID: showArray[i][1],
-      disableBtn: false}
+      waiting: false
+      }
     );
   }
 };
@@ -63,42 +66,44 @@ notSubmitted = function(msgArray, showArray) {
   return bool;
 }
 
-playerTimeout = function(showArray) {
-  clearTimeout('timeout');
-  setTimeout(function(){
-    var idArray = getIdArray(showArray);
-    for (i = 0; i < UUIDs.length; i++) {
-      if ((idArray.indexOf(UUIDs[i]) == -1) && (showArray.length != counter)) {
-        io.emit('disconnect', UUIDs[i]);
-        console.log('disconnect ' + UUIDs[i]);
-        UUIDs.splice(i, 1);
-        console.log('User count = ' + UUIDs.length);
-      }
-    }
-  }, 6000);
-}
-
 app.use(express.static(__dirname + '/public'));
 
 io.on('connection', function(socket){
   counter = socket.conn.server.clientsCount;
-  io.emit('users', counter);
+  io.emit('users', { counter: counter });
+
   socket.on('show', function(msgArray){
     console.log(msgArray);
     if (counter == 1) {
       showArray = [[Math.floor(3*Math.random()), "Fake UUID"]];
-    } else { playerTimeout(showArray); }
+    }
+    else if (showArray.length == 0) {
+      io.emit('show submitted', msgArray[1], roundTime);
+      roundTimer = setTimeout(function(){
+        console.log(showArray);
+        if (showArray.length  == 1) {
+          showArray.push([Math.floor(3*Math.random()), "Fake UUID"]);
+        }
+        checkWhoWon(showArray);
+        showArray = [];
+      }, roundTime * 1000);
+    }
     if (notSubmitted(msgArray, showArray)) {
       showArray.push(msgArray);
-      if ((showArray.length == counter) || (counter == 1)) { checkWhoWon(showArray); showArray = []; }
+    }
+    if (showArray.length == counter) {
+      clearTimeout(roundTimer);
+      checkWhoWon(showArray);
+      showArray = [];
     }
   });
+
   socket.on('disconnect', function(socket){
     counter = counter - 1;
     showArray = [];
-    io.emit('users', counter);
-    io.emit('result', { disableBtn: false });
+    io.emit('users', { counter: counter, waiting: false });
   });
+
   socket.on('hello', function(UUID){
     UUIDs.push(UUID);
     console.log('User count = ' + counter);
