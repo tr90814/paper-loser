@@ -93,13 +93,13 @@ io.on('connection', function(socket){
       }, roundTime * 1000);
     }
 
-    console.log(submittedHands);
-
     if (notSubmitted(socket.conn.id, submittedHands)) {
       submittedHands.push([hand, socket.conn.id]);
     }
 
-    if (submittedHands.length == usersCount) {
+    console.log(submittedHands);
+
+    if (submittedHands.length >= usersCount) {
 
       console.log('End of round');
       clearTimeout(roundTimer);
