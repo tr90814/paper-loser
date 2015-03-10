@@ -128,3 +128,12 @@ button {
   button          { font-size: 18px; }
   #messages .hand { font-size: 24px; }
 }
+
+@media screen and (orientation:landscape) and (max-height: 400px) {
+  .main-container {
+    margin-top: -145px;
+  }
+  h1 {
+    margin-bottom: 0;
+  }
+}
