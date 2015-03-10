@@ -4,11 +4,10 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var counter = 0;
-var showArray = [];
+var submittedHands = [];
 var timeout;
-var UUIDs = [];
 var roundTimer = undefined;
-var roundTime = 10;
+var roundTime = 60;
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -28,40 +27,41 @@ var beatsOne = function(i, array) {
   return !bool
 }
 
-checkWhoWon = function(showArray) {
-  for ( i = 0; i < showArray.length; i++) {
+checkWhoWon = function(submittedHands) {
+  for ( i = 0; i < submittedHands.length; i++) {
     var compareArray = [];
     var increment = 0;
-    for ( j = 0; j < showArray.length; j++) {
+    for ( j = 0; j < submittedHands.length; j++) {
       if(j != i) {
-        compareArray.push(showArray[j][0]);
+        compareArray.push(submittedHands[j][0]);
       }
     }
-    var element = showArray[i][0];
+    var element = submittedHands[i][0];
     if (beatsOne(element, compareArray)) { increment = increment + 1; }
     else if (isBeaten(element, compareArray)) { increment = increment + -1; }
+
     io.emit('result', {
       otherHands: compareArray,
       hand: element,
       increment: increment,
-      UUID: showArray[i][1],
+      UUID: submittedHands[i][1],
       waiting: false
       }
     );
   }
 };
 
-getIdArray = function(showArray) {
+getIdArray = function(submittedHands) {
   var idArray = [];
-  for (i = 0; i < showArray.length; i++) {
-    idArray.push(showArray[i][1]);
+  for (i = 0; i < submittedHands.length; i++) {
+    idArray.push(submittedHands[i][1]);
   }
   return idArray;
 }
 
-notSubmitted = function(msgArray, showArray) {
-  var idArray = getIdArray(showArray);
-  index = idArray.indexOf(msgArray[1]);
+notSubmitted = function(id, submittedHands) {
+  var idArray = getIdArray(submittedHands);
+  index = idArray.indexOf(id);
   bool = (index == -1);
   return bool;
 }
@@ -69,44 +69,53 @@ notSubmitted = function(msgArray, showArray) {
 app.use(express.static(__dirname + '/public'));
 
 io.on('connection', function(socket){
-  counter = socket.conn.server.clientsCount;
-  io.emit('users', { counter: counter });
 
-  socket.on('show', function(msgArray){
-    console.log(msgArray);
-    if (counter == 1) {
-      showArray = [[Math.floor(3*Math.random()), "Fake UUID"]];
+  io.emit('users', {
+    users: io.engine.clientsCount
+  });
+  console.log('Users: ' + io.engine.clientsCount);
+
+  socket.on('show', function(hand, fn){
+    usersCount = io.engine.clientsCount;
+
+    if (usersCount == 1) {
+      submittedHands = [[Math.floor(3*Math.random()), "Fake UUID"]];
     }
-    else if (showArray.length == 0) {
-      io.emit('show submitted', msgArray[1], roundTime);
+    else if (submittedHands.length == 0) {
+      io.emit('first hand submitted', roundTime, socket.conn.id);
+
       roundTimer = setTimeout(function(){
-        console.log(showArray);
-        if (showArray.length  == 1) {
-          showArray.push([Math.floor(3*Math.random()), "Fake UUID"]);
+        if (submittedHands.length  == 1) {
+          submittedHands.push([Math.floor(3*Math.random()), "Fake UUID"]);
         }
-        checkWhoWon(showArray);
-        showArray = [];
+        checkWhoWon(submittedHands);
+        submittedHands = [];
       }, roundTime * 1000);
     }
-    if (notSubmitted(msgArray, showArray)) {
-      showArray.push(msgArray);
+
+    console.log(submittedHands);
+
+    if (notSubmitted(socket.conn.id, submittedHands)) {
+      submittedHands.push([hand, socket.conn.id]);
     }
-    if (showArray.length == counter) {
+
+    if (submittedHands.length == usersCount) {
+
+      console.log('End of round');
       clearTimeout(roundTimer);
-      checkWhoWon(showArray);
-      showArray = [];
+      checkWhoWon(submittedHands);
+      submittedHands = [];
     }
+    fn(roundTime);
   });
 
   socket.on('disconnect', function(socket){
-    counter = counter - 1;
-    showArray = [];
-    io.emit('users', { counter: counter, waiting: false });
+    submittedHands = [];
+    io.emit('users', { users: io.engine.clientsCount, waiting: false });
   });
 
-  socket.on('hello', function(UUID){
-    UUIDs.push(UUID);
-    console.log('User count = ' + counter);
+  socket.on('hello', function(fn){
+    fn(socket.conn.id);
   })
 });
 

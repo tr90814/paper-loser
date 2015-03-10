@@ -82,8 +82,12 @@ button {
 #messages .hand {
   padding: 5px 10px;
   font-size: 32px;
-  min-height: 32px;
+  min-height: 24px;
   margin-bottom: 24px;
+}
+
+.instructions {
+  font-size: 18px;
 }
 
 #messages .points,

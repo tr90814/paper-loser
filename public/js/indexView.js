@@ -1,22 +1,23 @@
 var array   = ['PAPER', 'SCISSORS', 'ROCK'];
 var socket  = io();
-var UUID    = generateUUID();
 var points  = 0;
+var counter = undefined;
+var UUID = undefined;
 var buttons = $('button');
 var body    = $(document.body);
 var waitingText = $('.waiting-container > p')
-var counter = 0;
-var timer   = 10;
 var pause   = false;
-var title = $('h1');
+var title   = $('h1');
 
 init = function() {
-  socket.emit('hello', UUID);
   body.addClass('waiting');
   title.fadeIn();
-  setTimeout(function(){
-    document.body.className = 'app intro';
-  }, 2000)
+  socket.emit('hello', function(ID){
+    UUID = ID;
+    setTimeout(function(){
+      document.body.className = 'app intro';
+    }, 2000)
+  });
 }
 
 window.addEventListener("devicemotion", function(event) {
@@ -34,22 +35,11 @@ window.addEventListener("devicemotion", function(event) {
   }
 }, true);
 
-function sendShow(outgoing) {
-  var messageArray = [outgoing, UUID];
-
-  socket.emit('show', messageArray);
-  document.body.className = 'waiting';
-  // document.querySelector('animate').beginElement();
-}
-
-function generateUUID() {
-  var d = new Date().getTime();
-  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c) {
-    var r = (d + Math.random()*16)%16 | 0;
-    d = Math.floor(d/16);
-    return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+function sendShow(hand) {
+  socket.emit('show', hand, function(time){
+    shownHand = true;
   });
-  return uuid.toUpperCase();
+  document.body.className = 'waiting';
 }
 
 function displayOtherHands(handsArray) {
@@ -63,8 +53,9 @@ function displayOtherHands(handsArray) {
 }
 
 function timer(time) {
+  clearInterval(counter);
   var time    = time;
-  var counter = setInterval(countDown, 1000);
+  counter = setInterval(countDown, 1000);
 
   function countDown() {
     time = time - 1;
@@ -72,40 +63,44 @@ function timer(time) {
       clearInterval(counter);
       return;
     }
+    $('.count-down').html(time);
   }
-  return time;
 }
 
 buttons.on('click', function(){
-  var outgoing = $(this).data('hand');
-  if (outgoing == '-1') {
-    outgoing = Math.floor(3*Math.random());
+  var hand = $(this).data('hand');
+  if (hand == '-1') {
+    hand = Math.floor(3*Math.random());
   }
-  sendShow(outgoing);
+  sendShow(hand);
 });
 
 socket.on('result', function(result){
+  clearInterval(counter);
   if (UUID == result.UUID){
     $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
     points = points + result.increment;
     $('.points').html('Points: ' + points);
-  } else {
-    $('.hand').html('Looks like you missed out on that round, submit your hand quicker next time!');
   }
-  if (!waiting) { document.body.className = 'app'; }
+  if (!result.waiting) { document.body.className = 'app'; }
 });
 
 socket.on('users', function(obj){
-  if (obj.counter == 1) { $('.players').html("You're playing on your own (against our bot)."); }
-  else                  { $('.players').html("Players: " + counter); }
-  if (obj.waiting) { document.body.className = 'waiting'; }
-  else             { document.body.className = 'app'; }
+  if (obj.users <= 1) { $('.players').html("You're playing on your own (against our bot)."); }
+  else                { $('.players').html("Players: " + obj.users); }
+  if (obj.waiting)    { document.body.className = 'waiting'; }
+  else                { document.body.className = 'app'; }
 })
 
-socket.on('show submitted', function(ID, time) {
+socket.on('first hand submitted', function(time, ID){
   if (UUID != ID) {
-    $('.hand').html("Someone had shown their next hand, submit yours now, or you won't be included in this round. " + timer(time));
+    $('.hand').html(
+      "<span class='instructions'>Someone has submitted their " +
+      "next hand.<br>You have <span class='count-down'></span>s " +
+      "to submit a hand for this round.</span>"
+    );
   }
+  timer(time);
 })
 
 init();
