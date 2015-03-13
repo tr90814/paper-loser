@@ -25,6 +25,8 @@ io.on('connection', function(socket){
   socket.on('show', function(hand, fn){
     usersCount = io.engine.clientsCount;
 
+    console.log('submitted hands ' + submittedHands);
+
     if (usersCount == 1) {
       submittedHands = [[Math.floor(3*Math.random()), "Fake UUID"]];
     }
