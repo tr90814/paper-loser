@@ -56,7 +56,7 @@ io.on('connection', function(socket){
     console.log(submittedHands);
 
     if (submittedHands.length >= usersCount) {
-
+      console.log('enough results');
       console.log('End of round');
       clearTimeout(roundTimer);
 
