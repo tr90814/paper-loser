@@ -75,6 +75,7 @@ buttons.on('click', function(){
 });
 
 socket.on('result', function(result){
+  debugger
   clearInterval(counter);
   if (UUID == result.UUID){
     $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
