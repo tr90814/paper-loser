@@ -30,7 +30,7 @@ io.on('connection', function(socket){
     }
     else if (submittedHands.length == 0) {
       io.emit('first hand submitted', roundTime, socket.conn.id);
-      console.log('first hand submitted' + roundTime + socket.conn.id);
+      console.log('first hand submitted' + ' ' + roundTime + " "  + socket.conn.id);
 
       roundTimer = setTimeout(function(){
         if (submittedHands.length  == 1) {
@@ -48,6 +48,7 @@ io.on('connection', function(socket){
 
     if (helpers.notSubmitted(socket.conn.id, submittedHands)) {
       submittedHands.push([hand, socket.conn.id]);
+      console.log('result ' + ' ' + hand + ' ' + socket.conn.id)
     }
 
     console.log(submittedHands);
