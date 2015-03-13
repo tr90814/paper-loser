@@ -1,6 +1,6 @@
 var express         = require('express');
 var app             = express();
-var helpers         = require('helpers');
+var helpers         = require('helpers.js');
 var http            = require('http').Server(app);
 var io              = require('socket.io')(http);
 var roundTimer      = undefined;
