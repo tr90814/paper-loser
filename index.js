@@ -30,6 +30,7 @@ io.on('connection', function(socket){
     }
     else if (submittedHands.length == 0) {
       io.emit('first hand submitted', roundTime, socket.conn.id);
+      colsole.log('first hand submitted' + roundTime + socket.conn.id);
 
       roundTimer = setTimeout(function(){
         if (submittedHands.length  == 1) {
@@ -38,6 +39,7 @@ io.on('connection', function(socket){
 
         for ( i = 0; i < submittedHands.length; i++) {
           io.emit('result', helpers.checkWhoWon(submittedHands, i));
+          console.log('result ' + helpers.checkWhoWon(submittedHands, i))
         }
 
         submittedHands = [];
@@ -57,6 +59,7 @@ io.on('connection', function(socket){
 
       for ( i = 0; i < submittedHands.length; i++) {
         io.emit('result', helpers.checkWhoWon(submittedHands, i));
+        console.log('result ' + helpers.checkWhoWon(submittedHands, i));
       }
 
       submittedHands = [];
