@@ -39,7 +39,7 @@ io.on('connection', function(socket){
 
         for ( i = 0; i < submittedHands.length; i++) {
           io.emit('result', helpers.checkWhoWon(submittedHands, i));
-          console.log('result ' + helpers.checkWhoWon(submittedHands, i))
+          console.log('result ' + helpers.checkWhoWon(submittedHands, i) + ' in timer')
         }
 
         submittedHands = [];
