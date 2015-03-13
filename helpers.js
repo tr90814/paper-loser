@@ -35,7 +35,8 @@ exports.checkWhoWon = function(submittedHands, i) {
   increment: increment,
   UUID: submittedHands[i][1],
   waiting: false
-};
+  };
+}
 
 exports.notSubmitted = function(id, submittedHands) {
   var idArray = getIdArray(submittedHands);
