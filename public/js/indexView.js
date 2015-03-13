@@ -1,16 +1,15 @@
-var array   = ['PAPER', 'SCISSORS', 'ROCK'];
-var socket  = io();
-var points  = 0;
-var counter = undefined;
-var UUID = undefined;
-var buttons = $('button');
-var body    = $(document.body);
+var array       = ['PAPER', 'SCISSORS', 'ROCK'];
+var socket      = io();
+var buttons     = $('button');
+var title       = $('h1');
 var waitingText = $('.waiting-container > p')
-var pause   = false;
-var title   = $('h1');
+var pause       = false;
+var points      = 0;
+var counter     = undefined;
+var UUID        = undefined;
 
 init = function() {
-  body.addClass('waiting');
+  $(document.body).addClass('waiting');
   title.fadeIn();
   socket.emit('hello', function(ID){
     UUID = ID;
