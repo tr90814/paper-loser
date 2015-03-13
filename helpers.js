@@ -19,23 +19,25 @@ var getIdArray = function(submittedHands) {
 }
 
 exports.checkWhoWon = function(submittedHands, i) {
-  var compareArray = [];
-  var increment = 0;
-  for ( j = 0; j < submittedHands.length; j++) {
-    if(j != i) {
-      compareArray.push(submittedHands[j][0]);
+  resultObj = { waiting: false };
+  for ( i = 0; i < submittedHands.length; i++) {
+    var compareArray = [];
+    var increment = 0;
+    for ( j = 0; j < submittedHands.length; j++) {
+      if(j != i) {
+        compareArray.push(submittedHands[j][0]);
+      }
+    }
+    var element = submittedHands[i][0];
+    if (beatsOne(element, compareArray)) { increment = increment + 1; }
+    else if (isBeaten(element, compareArray)) { increment = increment + -1; }
+    resultObj[submittedHands[i][1]] = {
+      otherHands: compareArray,
+      hand: element,
+      increment: increment
     }
   }
-  var element = submittedHands[i][0];
-  if (beatsOne(element, compareArray)) { increment = increment + 1; }
-  else if (isBeaten(element, compareArray)) { increment = increment + -1; }
-  return {
-  otherHands: compareArray,
-  hand: element,
-  increment: increment,
-  UUID: submittedHands[i][1],
-  waiting: false
-  };
+  return resultObj;
 }
 
 exports.notSubmitted = function(id, submittedHands) {

@@ -39,10 +39,8 @@ io.on('connection', function(socket){
           submittedHands.push([Math.floor(3*Math.random()), "Fake UUID"]);
         }
 
-        for ( i = 0; i < submittedHands.length; i++) {
-          io.emit('result', helpers.checkWhoWon(submittedHands, i));
-          console.log('result ' + helpers.checkWhoWon(submittedHands, i) + ' in timer')
-        }
+        io.emit('result', helpers.checkWhoWon(submittedHands);
+        console.log('result ' + helpers.checkWhoWon(submittedHands) + ' in timer')
 
         submittedHands = [];
       }, roundTime * 1000);
@@ -60,10 +58,8 @@ io.on('connection', function(socket){
       console.log('End of round');
       clearTimeout(roundTimer);
 
-      for ( i = 0; i < submittedHands.length; i++) {
-        io.emit('result', helpers.checkWhoWon(submittedHands, i));
-        console.log('result ' + helpers.checkWhoWon(submittedHands, i));
-      }
+      io.emit('result', helpers.checkWhoWon(submittedHands);
+      console.log('result ' + helpers.checkWhoWon(submittedHands));
 
       submittedHands = [];
     }

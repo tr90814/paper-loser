@@ -75,13 +75,10 @@ buttons.on('click', function(){
 });
 
 socket.on('result', function(result){
-  debugger
   clearInterval(counter);
-  if (UUID == result.UUID){
-    $('.hand').html('You went: ' + array[result.hand] + ' ' + displayOtherHands(result.otherHands));
-    points = points + result.increment;
-    $('.points').html('Points: ' + points);
-  }
+  $('.hand').html('You went: ' + array[result.UUID.hand] + ' ' + displayOtherHands(result.UUID.otherHands));
+  points = points + result.UUID.increment;
+  $('.points').html('Points: ' + points);
   if (!result.waiting) { document.body.className = 'app'; }
 });
 
